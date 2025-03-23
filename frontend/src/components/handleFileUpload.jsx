@@ -23,7 +23,7 @@ const handleFileUpload = (event) => {
       }));
 
     try {
-      await axios.post("http://localhost:5000/upload", {
+      await axios.post("https://quizapp-backend-gold.vercel.app/api/upload", {
         questions: formattedData,
       });
       fetchQuestions();

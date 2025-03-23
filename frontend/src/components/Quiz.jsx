@@ -12,6 +12,7 @@ const Quiz = () => {
   const [userAnswers, setUserAnswers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
 
   useEffect(() => {
     fetchQuestions();
@@ -21,7 +22,9 @@ const Quiz = () => {
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/questions");
+      const response = await axios.get(
+        "https://quizapp-backend-gold.vercel.app/api/questions"
+      );
       setQuizData(response.data);
       setUserAnswers(new Array(response.data.length).fill(null));
     } catch (error) {
@@ -84,7 +87,7 @@ const Quiz = () => {
   // Upload questions to backend
   const uploadQuestions = async (formattedData) => {
     try {
-      await axios.post("http://localhost:5000/upload", {
+      await axios.post("https://quizapp-backend-gold.vercel.app/api/upload", {
         questions: formattedData,
       });
       fetchQuestions();
@@ -94,15 +97,17 @@ const Quiz = () => {
     setLoading(false);
   };
 
-  const handleOptionChange = (event) => {
-    const newAnswers = [...userAnswers];
-    newAnswers[currentIndex] = event.target.value;
-    setUserAnswers(newAnswers);
+  const handleNext = () => {
+    if (showAnswer) {
+      setCurrentIndex(currentIndex + 1);
+      setShowAnswer(false);
+    } else {
+      setShowAnswer(true);
+    }
   };
 
   return (
     <div className="quiz-container">
-      {/* Show Loading */}
       {loading ? (
         <div className="loading-container">
           <Spinner animation="border" variant="primary" className="m-2" />
@@ -110,7 +115,7 @@ const Quiz = () => {
         </div>
       ) : quizData.length > 0 ? (
         <div className="quiz-card">
-          {/* Top Bar - Upload Button, Heading, More Info Button in Same Row */}
+          <h3 className="onMobileHeading">Quiz Time!</h3>
           <div className="top-bar">
             <div className="upload-container">
               <label className="btn btn-primary">
@@ -124,66 +129,54 @@ const Quiz = () => {
               </label>
             </div>
 
-            <h3 className="text-primary fw-bold text-center">Quiz Time!</h3>
+            <h3>Quiz Time!</h3>
 
-            {/* More Info Button (Shows Question's More Info in Modal) */}
-            <div>
-              <Button
-                className="btn btn-primary"
-                variant="btn-primary"
-                onClick={() => setShowModal(true)}
-              >
-                More Info
-              </Button>
-            </div>
-          </div>
-          <p className="fw-bold">{`Question ${currentIndex + 1} of ${
-            quizData.length
-          }`}</p>
-          <p>{quizData[currentIndex].question}</p>
-
-          <div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="option"
-                value={quizData[currentIndex].answer}
-                checked={
-                  userAnswers[currentIndex] === quizData[currentIndex].answer
-                }
-                onChange={handleOptionChange}
-              />
-              <label className="form-check-label">
-                {quizData[currentIndex].answer}
-              </label>
-            </div>
+            <Button
+              className="btn btn-primary more-info-btn"
+              onClick={() => setShowModal(true)}
+            >
+              More Info
+            </Button>
           </div>
 
-          <div className="d-flex justify-content-between mt-3">
+          <div className="question-container">
+            <p className="fw-bold">{`Question ${currentIndex + 1} of ${
+              quizData.length
+            }`}</p>
+            <p>{quizData[currentIndex].question}</p>
+          </div>
+
+          {showAnswer && (
+            <div className="answer-container">
+              <p className="fw-bold">Answer:</p>
+              <p>{quizData[currentIndex].answer}</p>
+            </div>
+          )}
+
+          <div className="navigation-buttons">
             <button
               className="btn btn-secondary"
-              onClick={() => setCurrentIndex(currentIndex - 1)}
+              onClick={() => {
+                setCurrentIndex(currentIndex - 1);
+                setShowAnswer(false);
+              }}
               disabled={currentIndex === 0}
             >
               Previous
             </button>
             <button
               className="btn btn-primary"
-              onClick={() => setCurrentIndex(currentIndex + 1)}
-              disabled={currentIndex === quizData.length - 1}
+              onClick={handleNext}
+              disabled={currentIndex === quizData.length - 1 && showAnswer}
             >
-              Next
+              {showAnswer ? "Next Question" : "Show Answer"}
             </button>
           </div>
         </div>
       ) : (
-        <div className="no-questions d-flex flex-column align-items-center justify-content-center text-center">
-          {/* Quiz Heading at the Top */}
-          <h3 className="text-primary fw-bold mb-3">Quiz Time!</h3>
-
-          {/* Upload Button in the Center */}
-          <div className="upload-container mb-3">
+        <div className="no-questions">
+          <h3>Quiz Time!</h3>
+          <div className="upload-container">
             <label className="btn btn-primary">
               <FaUpload /> Upload File
               <input
@@ -194,15 +187,10 @@ const Quiz = () => {
               />
             </label>
           </div>
-
-          {/* Message in the Center */}
-          <p className="fw-bold">
-            No questions available. Upload a CSV/XLSX file.
-          </p>
+          <p>No questions available. Upload a CSV/XLSX file.</p>
         </div>
       )}
 
-      {/* More Info Modal (Shows Current Question's More Info) */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>More Info</Modal.Title>

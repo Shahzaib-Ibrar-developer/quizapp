@@ -1,70 +1,231 @@
+/* General Styles */
 body {
   background: linear-gradient(135deg, #1e3c72, #2a5298);
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
   margin: 0;
+  font-family: 'Arial', sans-serif;
 }
 
 .quiz-container {
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   background: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
   color: black;
   text-align: center;
+  margin: 20px;
 }
 
-p {
+/* Loading Spinner */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-text {
+  margin-top: 10px;
   font-size: 18px;
-  font-weight: 500;
+  color: white;
 }
 
-.form-check {
-  text-align: left;
-  margin-bottom: 10px;
+/* Quiz Card */
+.quiz-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.success-img {
-  max-width: 100%;
-  height: 250px;
-  object-fit: contain;
-}
-
-.star {
-  font-size: 24px;
-  cursor: pointer;
-  margin: 5px;
-}
-
-.filled {
-  color: gold;
+.onMobileHeading {
+  display: none;
 }
 
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: 600px;
-  margin: auto;
-  padding: 10px;
+  /* margin-bottom: 10px; */
 }
 
-.upload-container {
-  flex: 1;
-  text-align: left;
+.upload-container label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
 }
 
-.top-bar h3 {
-  flex: 1;
-  text-align: center;
+.upload-container label:hover {
+  background-color: #1565c0;
+}
+
+.upload-container input {
+  display: none;
+}
+
+h3 {
+  font-size: 24px;
+  color: #333;
   margin: 0;
 }
 
-.top-bar div:last-child {
+/* Question and Answer Styles */
+.question-container {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.question-container p {
+  font-size: 18px;
+  color: #333;
+  margin: 0;
+}
+
+.answer-container {
+  background: #e3f2fd;
+  padding: 20px;
+  border-radius: 8px;
+  /* margin-top: 20px; */
+}
+
+.answer-container p {
+  font-size: 18px;
+  color: #1976d2;
+  margin: 0;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.navigation-buttons button {
   flex: 1;
-  text-align: right;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navigation-buttons button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.navigation-buttons button.btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.navigation-buttons button.btn-primary {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.navigation-buttons button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* No Questions Message */
+.no-questions {
+  text-align: center;
+}
+
+.no-questions h3 {
+  font-size: 24px;
+  color: #333;
+}
+
+.no-questions p {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 10px;
+}
+
+.modal-header {
+  background: #1976d2;
+  color: #fff;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.modal-title {
+  font-size: 20px;
+}
+
+.modal-body {
+  font-size: 16px;
+  color: #333;
+}
+
+.modal-footer {
+  border-top: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .quiz-container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  .question-container p,
+  .answer-container p {
+    font-size: 16px;
+  }
+
+  .navigation-buttons button {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .upload-container label {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .upload-container,
+  .more-info-btn {
+    width: 100%;
+  }
+
+  .top-bar {
+    gap: 10px;
+  }
+
+  .top-bar h3 {
+    display: none;
+  }
+
+  .onMobileHeading {
+    display: block;
+    text-align: center;
+  }
 }

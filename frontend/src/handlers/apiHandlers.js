@@ -1,10 +1,21 @@
 import axios from "axios";
 
 const API_BASE_URL = "https://quizapp-backend-gold.vercel.app/api";
+const API_BASE_URL_LOCAL = "https://quizapp-backend-gold.vercel.app/api";
 
 export const fetchAllQuestions = async () => {
     try {
         const response = await axios.get(`${API_BASE_URL}/questions`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching questions:", error);
+        throw error;
+    }
+};
+
+export const fetchAllAdminQuestions = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL_LOCAL}/admin/questions`);
         return response.data;
     } catch (error) {
         console.error("Error fetching questions:", error);
@@ -25,6 +36,24 @@ export const fetchSet = async (setCode) => {
 export const uploadQuestions = async (questions) => {
     try {
         await axios.post(`${API_BASE_URL}/upload`, { questions });
+    } catch (error) {
+        console.error("Error uploading questions:", error);
+        throw error;
+    }
+};
+
+export const uploadAdminQuestions = async (questions) => {
+    try {
+        await axios.post(`${API_BASE_URL_LOCAL}/admin/upload`, { questions });
+    } catch (error) {
+        console.error("Error uploading questions:", error);
+        throw error;
+    }
+};
+
+export const uploadAdminReplaceQuestions = async (questions) => {
+    try {
+        await axios.post(`${API_BASE_URL_LOCAL}/admin/replaced`, { questions });
     } catch (error) {
         console.error("Error uploading questions:", error);
         throw error;

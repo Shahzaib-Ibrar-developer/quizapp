@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { parse } = require("json2csv"); // Correct import for json2csv
 
 const app = express();
 
@@ -54,7 +55,7 @@ app.post("/api/upload", async (req, res) => {
       return res.status(400).json({ error: "Invalid or empty questions array" });
     }
 
-    // await Question.deleteMany(); // Clear existing questions
+    await Question.deleteMany(); // Clear existing questions
     await Question.insertMany(req.body.questions); // Insert new questions
 
     res.json({ message: "Questions uploaded successfully" });
@@ -62,6 +63,130 @@ app.post("/api/upload", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post("/api/admin/upload", async (req, res) => {
+  try {
+    const questions = req.body.questions;
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty questions array" });
+    }
+
+    await Question.insertMany(questions); // Insert new data
+
+    res.json({ message: "Admin questions replaced successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/admin/replaced", async (req, res) => {
+  try {
+    const questions = req.body.questions;
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty questions array" });
+    }
+
+    await Question.deleteMany();
+    await Question.insertMany(questions);
+
+    res.json({ message: "Admin questions uploaded and replaced successfully" });
+  } catch (error) {
+    console.error("Error replacing admin questions:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all admin questions
+app.get("/api/admin/questions", async (req, res) => {
+  try {
+    const questions = await Question.find().sort({ setCode: 1, serialNumber: 1 });
+    res.json(questions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Export route to download admin questions as CSV
+// app.get("/api/admin/export", async (req, res) => {
+//   try {
+//     const adminQuestions = await Question.find().lean();
+
+//     if (!adminQuestions.length) {
+//       return res.status(404).json({ error: "No admin questions to export" });
+//     }
+
+//     const csvData = parse(adminQuestions); // Use the parse function from json2csv
+//     console.log("csvData", csvData);
+
+//     // Set headers for file download
+//     res.setHeader("Content-Type", "text/csv");
+//     res.setHeader("Content-Disposition", "attachment; filename=admin_questions.csv");
+
+//     // Send the CSV file data
+//     res.status(200).send(csvData);
+//   } catch (error) {
+//     console.error("Error generating CSV file:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+app.get("/api/admin/export", async (req, res) => {
+  try {
+    const adminQuestions = await Question.find().lean();
+
+    if (!adminQuestions.length) {
+      return res.status(404).json({ error: "No admin questions to export" });
+    }
+
+    const fields = [
+      "Question",
+      "Answer",
+      "More info",
+      "Category",
+      "Subcategory 1",
+      "Subcategory 2",
+      "Subcategory 3",
+      "Subcategory 4",
+      "Set",
+      "Set Name (max 25 characters)",
+      "Set Description (say 100 characters)",
+      "Certainty (1)",
+      "Serial"
+    ];
+
+    const formattedData = adminQuestions.map(q => ({
+      "Question": q.question || "",
+      "Answer": q.answer || "",
+      "More info": q.moreInfo || "",
+      "Category": q.category || "",
+      "Subcategory 1": q.subCategory1 || "",
+      "Subcategory 2": q.subCategory2 || "",
+      "Subcategory 3": "", // Not available in your schema
+      "Subcategory 4": "", // Not available in your schema
+      "Set": q.setCode || "",
+      "Set Name (max 25 characters)": q.setName || "",
+      "Set Description (say 100 characters)": q.setDescription || "",
+      "Certainty (1)": "", // You can fill this with static/default value if needed
+      "Serial": q.serialNumber || ""
+    }));
+
+    const csvData = parse(formattedData, { fields });
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=admin_questions.csv");
+
+    res.status(200).send(csvData);
+  } catch (error) {
+    console.error("Error generating CSV file:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 
 // Fetch all questions (Grouped by sets)
 app.get("/api/questions", async (req, res) => {
